@@ -15,5 +15,5 @@ go build
 
 Example:
 ```bash
-./enigma root secret_pass my_db_name my_tbl my_tbl.proto
+./enigma my_user secret_pass my_db_name my_tbl my_tbl.proto
 ```
