@@ -109,6 +109,8 @@ func GetProtoDataType(mysqlType string) string {
 	switch mysqlType {
 	case "varchar":
 		return "string"
+	case "int":
+		return "int64"
 	case "bigint":
 		return "int64"
 	case "tinyint":
