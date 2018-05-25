@@ -4,7 +4,7 @@ A small tool to generate protobuf file from MySQL
 
 Requirement:
 - A open connection to MySQL server, default port is 3306
-- MySQL user with `read` permission on table `information_schema`
+- MySQL user with `read` permission on database `information_schema`
 
 Run:
 ```bash
