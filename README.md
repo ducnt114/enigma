@@ -1,19 +1,20 @@
 # Enigma
 
-A small tool to generate protobuf file from MySQL
+A small tool to generate protobuf file from database
+
+Currently support database: MySQL
 
 Requirement:
-- A open connection to MySQL server, default port is 3306
+- A open connection to database server server, default port is 3306
 - MySQL user with `read` permission on database `information_schema`
 
 Run:
 ```bash
-cd cmd/enigma
 go build
-./enigma <mysql_user> <mysql_password> <database_name> <table_name> <proto_file>
+./enigma gen --type=<...> --host=<...> --port=<...> --user=<...> --pass=<...> --db=<...> --table=<..> --file=<..>
 ```
 
 Example:
 ```bash
-./enigma my_user secret_pass my_db_name my_tbl my_tbl.proto
+./enigma gen --type=mysql --host=localhost --port=3306 --user=root --pass=secret --db=staging --table=apps --file=app.proto
 ```

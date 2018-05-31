@@ -1,34 +1,31 @@
-package main
+package cmd
 
 import (
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
-	"log"
-	"os"
-	"fmt"
-	"bufio"
+	"github.com/spf13/cobra"
 	"strings"
+	"log"
+	"fmt"
+	"database/sql"
+	"os"
+	"bufio"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-// Usage: ./enigma <mysql_user> <mysql_password> <database_name> <table_name> <proto_file>
-func main() {
+var genCmd = &cobra.Command{
+	Use:   "gen",
+	Short: "Generate proto file",
+	Long:  `Generate proto file from MySQL`,
+	Run: func(cmd *cobra.Command, args []string) {
+		GenerateProto(args)
+	},
+}
 
-	args := os.Args[1:]
+func GenerateProto(args []string) {
 
-	if len(args) != 5 {
-		log.Fatal("Missing param, usage: ./enigma <mysql_user> <mysql_password> <database_name> <table_name> <proto_file>")
-		return
-	}
+	schemaTable := "information_schema"
 
-	mysqlUser := args[0]
-	mysqlPass := args[1]
-	mysqlDataBase := args[2]
-	mysqlTable := args[3]
-	outputFile := args[4]
-	infomationSchemaTable := "information_schema"
-
-	// example: root:pass@/database?parseTime=true
-	dataSourceName := fmt.Sprintf("%s:%s@/%s", mysqlUser, mysqlPass, infomationSchemaTable)
+	// example: root:pass@tcp(host:port)/database?param=value
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", dbUser, dbPass, dbHost, dbPort, schemaTable)
 	mysqlDB, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
 		log.Fatal("Can not connect to mysql, detail: ", err)
@@ -42,14 +39,14 @@ func main() {
 		return
 	}
 
-	rows, err := stmt.Query(mysqlDataBase, mysqlTable)
+	rows, err := stmt.Query(dbName, dbTable)
 	if err != nil {
 		log.Println("Error when exec query, detail: ", err)
 		return
 	}
 
 	// open output file
-	fo, err := os.Create(outputFile)
+	fo, err := os.Create(protoFile)
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +66,7 @@ func main() {
 		return
 	}
 
-	if _, err := w.Write([]byte(fmt.Sprintf("message %s {\n", GetCamelCase(mysqlTable)))); err != nil {
+	if _, err := w.Write([]byte(fmt.Sprintf("message %s {\n", GetCamelCase(dbTable)))); err != nil {
 		log.Println("Error when write data to file, detail: ", err)
 		return
 	}
@@ -102,21 +99,18 @@ func main() {
 		log.Println("Error when flush data to file, detail: ", err)
 		return
 	}
-
 }
 
 func GetProtoDataType(mysqlType string) string {
 	switch mysqlType {
-	case "varchar":
+	case "varchar", "longtext":
 		return "string"
-	case "int":
-		return "int64"
-	case "bigint":
+	case "smallint", "int", "bigint", "date", "datetime":
 		return "int64"
 	case "tinyint":
 		return "bool"
-	case "datetime":
-		return "int64"
+	case "decimal":
+		return "double"
 	default:
 		return ""
 	}
