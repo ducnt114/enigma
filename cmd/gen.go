@@ -103,9 +103,9 @@ func GenerateProto(args []string) {
 
 func GetProtoDataType(mysqlType string) string {
 	switch mysqlType {
-	case "varchar", "longtext":
+	case "varchar", "longtext", "text":
 		return "string"
-	case "smallint", "int", "bigint", "date", "datetime":
+	case "smallint", "int", "bigint", "date", "datetime", "timestamp":
 		return "int64"
 	case "tinyint":
 		return "bool"
